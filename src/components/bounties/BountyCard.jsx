@@ -20,6 +20,9 @@ function BountyCard({
     type = 'money',
     unit = '',
     className,
+    moreInfoLink,
+    isAdmin,
+    onEdit,
     ...props
 }) {
     const progress = Math.min(100, (raised / goal) * 100);
@@ -38,8 +41,8 @@ function BountyCard({
             };
         }
         return {
-            raised: `$${raised.toLocaleString()} raised`,
-            goal: `of $${goal.toLocaleString()}`
+            raised: `₹${raised.toLocaleString()} raised`,
+            goal: `of ₹${goal.toLocaleString()}`
         };
     };
 
@@ -135,6 +138,30 @@ function BountyCard({
                             </div>
                         </div>
                     </div>
+
+                    {/* Actions */}
+                    {(moreInfoLink || isAdmin) && (
+                        <div className="flex items-center justify-end gap-2 pt-3 mt-3 border-t border-zinc-800/50">
+                            {moreInfoLink && (
+                                <a
+                                    href={moreInfoLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs font-medium text-amber-500 hover:text-amber-400 transition-colors px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 rounded-md"
+                                >
+                                    More Information
+                                </a>
+                            )}
+                            {isAdmin && (
+                                <button
+                                    onClick={onEdit}
+                                    className="text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-md"
+                                >
+                                    Edit card
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>

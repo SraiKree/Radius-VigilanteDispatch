@@ -96,12 +96,15 @@ function BountiesPage() {
 
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingBounty, setEditingBounty] = useState(null);
     const [bountyType, setBountyType] = useState('money');
     const [formData, setFormData] = useState({
         title: '',
         charity: '',
         goal: '',
         unit: '',
+        moreInfoLink: '',
     });
 
     const handleInputChange = (e) => {
@@ -123,12 +126,31 @@ function BountiesPage() {
             backers: 0,
             type: bountyType,
             unit: bountyType === 'custom' ? formData.unit : undefined,
+            moreInfoLink: formData.moreInfoLink || undefined,
         };
 
         setBounties([newBounty, ...bounties]);
         setIsModalOpen(false);
-        setFormData({ title: '', charity: '', goal: '', unit: '' });
+        setFormData({ title: '', charity: '', goal: '', unit: '', moreInfoLink: '' });
         setBountyType('money');
+    };
+
+    const handleEditClick = (bounty) => {
+        setEditingBounty(bounty);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateBounty = (e) => {
+        e.preventDefault();
+        setBounties(bounties.map(b => b.id === editingBounty.id ? editingBounty : b));
+        setIsEditModalOpen(false);
+        setEditingBounty(null);
+    };
+
+    const handleDeleteBounty = (id) => {
+        setBounties(bounties.filter(b => b.id !== id));
+        setIsEditModalOpen(false);
+        setEditingBounty(null);
     };
 
     const filteredBounties = bounties.filter(bounty => {
@@ -168,7 +190,7 @@ function BountiesPage() {
                 >
                     {[
                         { label: 'Total Bounties', value: stats.total, color: 'text-zinc-50' },
-                        { label: 'Total Raised', value: `$${stats.raised.toLocaleString()}`, color: 'text-amber-400' },
+                        { label: 'Total Raised', value: `₹${stats.raised.toLocaleString()}`, color: 'text-amber-400' },
                         { label: 'Volunteers Mobilized', value: stats.volunteers.toLocaleString(), color: 'text-indigo-400' },
                         { label: 'Items Collected', value: stats.items.toLocaleString(), color: 'text-emerald-400' },
                     ].map((stat) => (
@@ -314,6 +336,9 @@ function BountiesPage() {
                                 backers={bounty.backers}
                                 type={bounty.type}
                                 unit={bounty.unit}
+                                moreInfoLink={bounty.moreInfoLink}
+                                isAdmin={isAdmin}
+                                onEdit={() => handleEditClick(bounty)}
                                 className={viewMode === 'list' ? 'max-w-none' : ''}
                             />
                         </motion.div>
@@ -325,6 +350,134 @@ function BountiesPage() {
                     <div className="text-center py-16">
                         <p className="text-zinc-500">No bounties found matching your filter.</p>
                     </div>
+                )}
+
+                {/* Edit Bounty Modal */}
+                {editingBounty && (
+                    <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+                        <form onSubmit={handleUpdateBounty}>
+                            <ModalHeader>
+                                <ModalTitle>Edit Bounty</ModalTitle>
+                            </ModalHeader>
+                            <ModalBody className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                <div>
+                                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                        Bounty Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editingBounty.title}
+                                        onChange={(e) => setEditingBounty({ ...editingBounty, title: e.target.value })}
+                                        className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                        Group/Entity Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editingBounty.charity}
+                                        onChange={(e) => setEditingBounty({ ...editingBounty, charity: e.target.value })}
+                                        className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                            Target Goal
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={editingBounty.goal}
+                                            onChange={(e) => setEditingBounty({ ...editingBounty, goal: Number(e.target.value) })}
+                                            className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                            required
+                                            min="1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                            Raised Amount
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={editingBounty.raised}
+                                            onChange={(e) => setEditingBounty({ ...editingBounty, raised: Number(e.target.value) })}
+                                            className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                            required
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                            Days Left
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={editingBounty.daysLeft}
+                                            onChange={(e) => setEditingBounty({ ...editingBounty, daysLeft: Number(e.target.value) })}
+                                            className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                            required
+                                            min="0"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                            Status
+                                        </label>
+                                        <select
+                                            value={editingBounty.status}
+                                            onChange={(e) => setEditingBounty({ ...editingBounty, status: e.target.value })}
+                                            className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                        >
+                                            <option value="open">Open</option>
+                                            <option value="fulfilled">Fulfilled</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                        More Information Link <span className="text-zinc-500 font-normal">(Optional)</span>
+                                    </label>
+                                    <input
+                                        type="url"
+                                        value={editingBounty.moreInfoLink || ''}
+                                        onChange={(e) => setEditingBounty({ ...editingBounty, moreInfoLink: e.target.value })}
+                                        placeholder="e.g. https://example.com/details"
+                                        className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                    />
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <div className="flex w-full items-center justify-between">
+                                    {(editingBounty.status === 'fulfilled' || editingBounty.daysLeft <= 0) ? (
+                                        <button
+                                            type="button"
+                                            className="h-10 px-4 py-2 bg-transparent text-red-500 border border-red-500/50 rounded-lg text-sm font-medium hover:bg-red-500/10 transition-colors"
+                                            onClick={() => handleDeleteBounty(editingBounty.id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    ) : (
+                                        <div />
+                                    )}
+                                    <div className="flex items-center gap-3">
+                                        <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit" variant="primary">
+                                            Save Changes
+                                        </Button>
+                                    </div>
+                                </div>
+                            </ModalFooter>
+                        </form>
+                    </Modal>
                 )}
 
                 {/* Create Bounty Modal */}
@@ -411,6 +564,20 @@ function BountiesPage() {
                                     />
                                 </div>
                             )}
+
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                    More Information Link <span className="text-zinc-500 font-normal">(Optional)</span>
+                                </label>
+                                <input
+                                    type="url"
+                                    name="moreInfoLink"
+                                    value={formData.moreInfoLink || ''}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g. https://example.com/details"
+                                    className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                />
+                            </div>
                         </ModalBody>
                         <ModalFooter>
                             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
