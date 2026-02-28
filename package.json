@@ -12,7 +12,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@iconify-json/tabler": "^1.2.26",
-    "@supabase/supabase-js": "^2.93.3",
+    "@supabase/supabase-js": "^2.98.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "flyonui": "^2.4.1",

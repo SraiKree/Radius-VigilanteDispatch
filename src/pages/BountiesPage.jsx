@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, List, Filter, Search, Plus, ShieldCheck } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { Button, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '../components/common';
 import { BountyCard } from '../components/bounties';
 import { useAuth } from '../lib/AuthContext';
+import { supabase } from '../lib/supabase';
 
 // Mock bounty data
 const initialBounties = [
@@ -89,8 +90,25 @@ const initialBounties = [
  */
 function BountiesPage() {
     const { isAdmin } = useAuth();
-    const [bounties, setBounties] = useState(initialBounties);
+    const [bounties, setBounties] = useState([]);
     const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+
+    useEffect(() => {
+        fetchBounties();
+    }, []);
+
+    const fetchBounties = async () => {
+        const { data, error } = await supabase
+            .from('bounties')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            setBounties(data);
+        } else {
+            console.error('Error fetching bounties:', error);
+        }
+    };
     const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'open' | 'fulfilled'
     const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'money' | 'volunteer' | 'custom'
 
@@ -111,28 +129,36 @@ function BountiesPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleCreateBounty = (e) => {
+    const handleCreateBounty = async (e) => {
         e.preventDefault();
 
         const newBounty = {
-            id: Date.now(),
             title: formData.title,
             charity: formData.charity,
             location: 'Remote/TBD',
             goal: Number(formData.goal) || 0,
             raised: 0,
             status: 'open',
-            daysLeft: 30,
+            "daysLeft": 30,
             backers: 0,
             type: bountyType,
-            unit: bountyType === 'custom' ? formData.unit : undefined,
-            moreInfoLink: formData.moreInfoLink || undefined,
+            unit: bountyType === 'custom' ? formData.unit : null,
+            "moreInfoLink": formData.moreInfoLink || null,
         };
 
-        setBounties([newBounty, ...bounties]);
-        setIsModalOpen(false);
-        setFormData({ title: '', charity: '', goal: '', unit: '', moreInfoLink: '' });
-        setBountyType('money');
+        const { data, error } = await supabase
+            .from('bounties')
+            .insert([newBounty])
+            .select();
+
+        if (!error && data) {
+            setBounties([...data, ...bounties]);
+            setIsModalOpen(false);
+            setFormData({ title: '', charity: '', goal: '', unit: '', moreInfoLink: '' });
+            setBountyType('money');
+        } else {
+            console.error('Error creating bounty:', error);
+        }
     };
 
     const handleEditClick = (bounty) => {
@@ -140,17 +166,44 @@ function BountiesPage() {
         setIsEditModalOpen(true);
     };
 
-    const handleUpdateBounty = (e) => {
+    const handleUpdateBounty = async (e) => {
         e.preventDefault();
-        setBounties(bounties.map(b => b.id === editingBounty.id ? editingBounty : b));
-        setIsEditModalOpen(false);
-        setEditingBounty(null);
+        const { data, error } = await supabase
+            .from('bounties')
+            .update({
+                title: editingBounty.title,
+                charity: editingBounty.charity,
+                goal: editingBounty.goal,
+                raised: editingBounty.raised,
+                "daysLeft": editingBounty.daysLeft,
+                status: editingBounty.status,
+                "moreInfoLink": editingBounty.moreInfoLink,
+            })
+            .eq('id', editingBounty.id)
+            .select();
+
+        if (!error && data) {
+            setBounties(bounties.map(b => b.id === editingBounty.id ? data[0] : b));
+            setIsEditModalOpen(false);
+            setEditingBounty(null);
+        } else {
+            console.error('Error updating bounty:', error);
+        }
     };
 
-    const handleDeleteBounty = (id) => {
-        setBounties(bounties.filter(b => b.id !== id));
-        setIsEditModalOpen(false);
-        setEditingBounty(null);
+    const handleDeleteBounty = async (id) => {
+        const { error } = await supabase
+            .from('bounties')
+            .delete()
+            .eq('id', id);
+
+        if (!error) {
+            setBounties(bounties.filter(b => b.id !== id));
+            setIsEditModalOpen(false);
+            setEditingBounty(null);
+        } else {
+            console.error('Error deleting bounty:', error);
+        }
     };
 
     const filteredBounties = bounties.filter(bounty => {
