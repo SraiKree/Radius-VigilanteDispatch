@@ -1,16 +1,17 @@
 import { motion } from 'framer-motion';
 import { MapPin, Shield, Activity, Radius } from 'lucide-react';
 import { TacticalMap, LiveFeed, SOSButton } from '../components/dashboard';
+import { useIncidents } from '../hooks/useIncidents';
 
 /**
  * EmergencyPage - Dedicated emergency response view
  * Simplified tactical interface focused on immediate response
  */
 function EmergencyPage() {
+    const { incidents } = useIncidents();
+
     const handleSOS = (data) => {
-        console.log('SOS triggered with data:', data);
-        // TODO: Implement actual SOS dispatch with Supabase
-        // data contains { type, note }
+        console.log('SOS dispatched:', data);
     };
 
     return (
@@ -18,7 +19,7 @@ function EmergencyPage() {
             {/* Background Map - Dimmed for focus */}
             <div className="absolute inset-0 opacity-40">
                 <div className="w-full h-full">
-                    <TacticalMap />
+                    <TacticalMap incidents={incidents} />
                 </div>
                 <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
             </div>

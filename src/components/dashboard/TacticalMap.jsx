@@ -1,8 +1,22 @@
-import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Trash2 } from 'lucide-react';
+
+/**
+ * Format a timestamp into a relative time string (e.g. "2 mins ago")
+ */
+function timeAgo(timestamp) {
+    if (!timestamp) return '';
+    const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+    if (seconds < 60) return 'Just now';
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins} min${mins > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hr${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+}
 
 // Fix for default Leaflet marker icons not loading correctly in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -73,8 +87,8 @@ function TacticalMap({ incidents = [], onDeleteIncident, isAdmin = false }) {
                                         <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
                                         <h3 className="text-xs font-bold uppercase tracking-wider text-red-500">{incident.type}</h3>
                                     </div>
-                                    <p className="text-sm border-b border-zinc-800 pb-2 mb-2">{incident.description}</p>
-                                    <p className="text-xs text-zinc-500 text-right mb-2">{incident.time}</p>
+                                    <p className="text-sm border-b border-zinc-800 pb-2 mb-2">{incident.note || <span className="text-zinc-500 italic">No additional details</span>}</p>
+                                    <p className="text-xs text-zinc-500 text-right mb-2">{timeAgo(incident.created_at)}</p>
                                     {isAdmin && (
                                         <button
                                             onClick={() => onDeleteIncident && onDeleteIncident(incident.id)}

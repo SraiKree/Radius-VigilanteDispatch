@@ -1,43 +1,27 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { TacticalMap, LiveFeed, SOSButton } from '../components/dashboard';
 import { useAuth } from '../lib/AuthContext';
-
-// Mock incidents data - lifted here so admin can manage them
-const initialIncidents = [
-    {
-        id: 'inc-1',
-        type: 'Medical SOS',
-        lat: 17.5948,
-        lng: 78.4405,
-        time: '2 mins ago',
-        description: 'Student experiencing severe allergic reaction.',
-    },
-    {
-        id: 'inc-2',
-        type: 'Security Alert',
-        lat: 17.5940,
-        lng: 78.4398,
-        time: '5 mins ago',
-        description: 'Suspicious activity reported near library entrance.',
-    },
-];
+import { useIncidents } from '../hooks/useIncidents';
+import { supabase } from '../lib/supabase';
 
 /**
  * DashboardPage - Main tactical command view
- * Full-screen map with overlay panels
+ * Full-screen map with overlay panels, powered by live Supabase data.
  */
 function DashboardPage() {
     const { isAdmin } = useAuth();
-    const [incidents, setIncidents] = useState(initialIncidents);
+    const { incidents, loading } = useIncidents();
 
-    const handleSOS = () => {
-        console.log('SOS triggered!');
-        // TODO: Implement actual SOS dispatch with Supabase
-    };
+    const handleDeleteIncident = async (incidentId) => {
+        // Mark as resolved in Supabase — realtime hook will auto-remove it
+        const { error } = await supabase
+            .from('incidents')
+            .update({ status: 'resolved' })
+            .eq('id', incidentId);
 
-    const handleDeleteIncident = (incidentId) => {
-        setIncidents((prev) => prev.filter((inc) => inc.id !== incidentId));
+        if (error) {
+            console.error('Failed to resolve incident:', error);
+        }
     };
 
     return (
@@ -50,6 +34,13 @@ function DashboardPage() {
                     isAdmin={isAdmin}
                 />
             </div>
+
+            {/* Loading overlay */}
+            {loading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/50 backdrop-blur-sm">
+                    <div className="text-zinc-400 text-sm font-mono animate-pulse">Loading tactical data...</div>
+                </div>
+            )}
 
             {/* Overlay panels */}
             <div className="absolute inset-0 pointer-events-none">
@@ -70,7 +61,7 @@ function DashboardPage() {
                     transition={{ duration: 0.4, delay: 0.4 }}
                     className="absolute bottom-6 right-6 pointer-events-auto"
                 >
-                    <SOSButton onTrigger={handleSOS} />
+                    <SOSButton />
                 </motion.div>
 
                 {/* Bottom left - Quick stats */}
