@@ -228,8 +228,8 @@ function BountiesPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-8"
                 >
-                    <h1 className="text-3xl font-bold text-zinc-50 mb-2">Bounty Feed</h1>
-                    <p className="text-zinc-400">
+                    <h1 className="text-3xl font-bold text-foreground mb-2">Bounty Feed</h1>
+                    <p className="text-muted-foreground">
                         Support campus charities and track transparent fund allocation.
                     </p>
                 </motion.div>
@@ -242,17 +242,17 @@ function BountiesPage() {
                     className="grid grid-cols-4 gap-4 mb-8"
                 >
                     {[
-                        { label: 'Total Bounties', value: stats.total, color: 'text-zinc-50' },
-                        { label: 'Total Raised', value: `₹${stats.raised.toLocaleString()}`, color: 'text-amber-400' },
-                        { label: 'Volunteers Mobilized', value: stats.volunteers.toLocaleString(), color: 'text-indigo-400' },
-                        { label: 'Items Collected', value: stats.items.toLocaleString(), color: 'text-emerald-400' },
+                        { label: 'Total Bounties', value: stats.total, color: 'text-foreground' },
+                        { label: 'Total Raised', value: `₹${stats.raised.toLocaleString()}`, color: 'text-ledger' },
+                        { label: 'Volunteers Mobilized', value: stats.volunteers.toLocaleString(), color: 'text-command' },
+                        { label: 'Items Collected', value: stats.items.toLocaleString(), color: 'text-foreground' },
                     ].map((stat) => (
                         <div
                             key={stat.label}
-                            className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4"
+                            className="bg-surface border border-border rounded-xl px-5 py-4 shadow-sm"
                         >
                             <p className={cn('text-2xl font-bold', stat.color)}>{stat.value}</p>
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider mt-1">{stat.label}</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{stat.label}</p>
                         </div>
                     ))}
                 </motion.div>
@@ -266,18 +266,18 @@ function BountiesPage() {
                 >
                     {/* Search */}
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Search bounties..."
-                            className="w-full h-10 pl-10 pr-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-zinc-50 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
+                            className="w-full h-10 pl-10 pr-4 bg-surface border border-border rounded-xl text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ledger focus:border-ledger"
                         />
                     </div>
 
                     {/* Filters */}
                     <div className="flex items-center gap-4">
                         {/* Status Filter */}
-                        <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+                        <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-1">
                             {['all', 'open', 'fulfilled'].map((f) => (
                                 <button
                                     key={f}
@@ -285,8 +285,8 @@ function BountiesPage() {
                                     className={cn(
                                         'px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition-colors',
                                         statusFilter === f
-                                            ? 'bg-zinc-800 text-zinc-50'
-                                            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
+                                            ? 'bg-muted border border-border text-foreground'
+                                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                     )}
                                 >
                                     {f}
@@ -295,20 +295,20 @@ function BountiesPage() {
                         </div>
 
                         {/* Type Filter */}
-                        <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+                        <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-1">
                             {['all', 'money', 'volunteer', 'custom'].map((t) => {
-                                let colorHoverClass = 'hover:text-zinc-300';
-                                let colorActiveClass = 'bg-zinc-800 text-zinc-50';
+                                let colorHoverClass = 'hover:text-foreground';
+                                let colorActiveClass = 'bg-muted border border-border text-foreground';
 
                                 if (t === 'money') {
-                                    colorHoverClass = 'hover:text-amber-400';
-                                    colorActiveClass = 'bg-amber-500/20 text-amber-400';
+                                    colorHoverClass = 'hover:text-ledger';
+                                    colorActiveClass = 'bg-ledger/20 text-ledger border border-ledger/30';
                                 } else if (t === 'volunteer') {
-                                    colorHoverClass = 'hover:text-indigo-400';
-                                    colorActiveClass = 'bg-indigo-500/20 text-indigo-400';
+                                    colorHoverClass = 'hover:text-command';
+                                    colorActiveClass = 'bg-command/20 text-command border border-command/30';
                                 } else if (t === 'custom') {
-                                    colorHoverClass = 'hover:text-emerald-400';
-                                    colorActiveClass = 'bg-emerald-500/20 text-emerald-400';
+                                    colorHoverClass = 'hover:text-foreground';
+                                    colorActiveClass = 'bg-muted border border-border text-foreground';
                                 }
 
                                 return (
@@ -319,7 +319,7 @@ function BountiesPage() {
                                             'px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition-colors',
                                             typeFilter === t
                                                 ? colorActiveClass
-                                                : `text-zinc-500 hover:bg-zinc-800/50 ${colorHoverClass}`
+                                                : `text-muted-foreground hover:bg-muted/50 ${colorHoverClass}`
                                         )}
                                     >
                                         {t}
@@ -330,12 +330,12 @@ function BountiesPage() {
                     </div>
 
                     {/* View toggle */}
-                    <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+                    <div className="flex items-center gap-1 bg-surface border border-border rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('grid')}
                             className={cn(
                                 'p-2 rounded-md transition-colors',
-                                viewMode === 'grid' ? 'bg-zinc-800 text-zinc-50' : 'text-zinc-500 hover:text-zinc-300'
+                                viewMode === 'grid' ? 'bg-muted text-foreground border border-border' : 'text-muted-foreground hover:text-foreground'
                             )}
                         >
                             <LayoutGrid className="w-4 h-4" />
@@ -344,7 +344,7 @@ function BountiesPage() {
                             onClick={() => setViewMode('list')}
                             className={cn(
                                 'p-2 rounded-md transition-colors',
-                                viewMode === 'list' ? 'bg-zinc-800 text-zinc-50' : 'text-zinc-500 hover:text-zinc-300'
+                                viewMode === 'list' ? 'bg-muted text-foreground border border-border' : 'text-muted-foreground hover:text-foreground'
                             )}
                         >
                             <List className="w-4 h-4" />

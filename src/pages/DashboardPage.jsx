@@ -37,8 +37,8 @@ function DashboardPage() {
 
             {/* Loading overlay */}
             {loading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/50 backdrop-blur-sm">
-                    <div className="text-zinc-400 text-sm font-mono animate-pulse">Loading tactical data...</div>
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/90">
+                    <div className="text-muted-foreground text-sm font-mono animate-pulse">Loading tactical data...</div>
                 </div>
             )}
 
@@ -51,7 +51,7 @@ function DashboardPage() {
                     transition={{ duration: 0.4, delay: 0.2 }}
                     className="absolute top-4 right-4 bottom-24 pointer-events-auto"
                 >
-                    <LiveFeed />
+                    <LiveFeed incidents={incidents} />
                 </motion.div>
 
                 {/* Bottom right - SOS Button */}
@@ -71,20 +71,21 @@ function DashboardPage() {
                     transition={{ duration: 0.4, delay: 0.3 }}
                     className="absolute bottom-6 left-6 pointer-events-auto"
                 >
-                    <div className="glass-dark rounded-xl px-4 py-3 flex items-center gap-6">
+                    <div className="bg-surface border border-border rounded-xl px-4 py-3 flex items-center gap-6 shadow-xl">
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-emerald-400">12</p>
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider">Online</p>
+                            <p className="text-2xl font-bold text-command">12</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Online</p>
                         </div>
-                        <div className="w-px h-8 bg-zinc-700" />
+                        <div className="w-px h-8 bg-border" />
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-amber-400">3</p>
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider">Active</p>
+                            <p className="text-2xl font-bold text-ledger">3</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Active</p>
                         </div>
-                        <div className="w-px h-8 bg-zinc-700" />
+                        <div className="w-px h-8 bg-border" />
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-red-400">{incidents.length}</p>
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider">Incidents</p>
+                            {/* Number of incidents = Use text-white to not dilute the Beacon Red, or just foreground */}
+                            <p className="text-2xl font-bold text-foreground">{incidents.length}</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Incidents</p>
                         </div>
                     </div>
                 </motion.div>
@@ -97,8 +98,8 @@ function DashboardPage() {
                         transition={{ duration: 0.4 }}
                         className="absolute top-4 left-4 pointer-events-auto"
                     >
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-mono backdrop-blur-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-muted-foreground font-mono shadow-md">
+                            <span className="w-2 h-2 rounded-full bg-command" />
                             HQ Command Mode — Click incidents to manage
                         </div>
                     </motion.div>

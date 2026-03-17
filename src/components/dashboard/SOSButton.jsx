@@ -113,31 +113,20 @@ function SOSButton({ className, onTrigger }) {
                 onMouseLeave={() => setIsPressed(false)}
                 onClick={handlePress}
                 className={cn(
-                    'relative group',
+                    'relative group flex items-center justify-center btn-tactical',
+                    'w-20 h-20 rounded-xl bg-beacon text-white',
+                    isPressed ? 'btn-tactical-pressed bg-beacon/90' : 'shadow-lg',
                     className
                 )}
             >
-                {/* Outer glow ring */}
-                <div className="absolute inset-0 rounded-full bg-red-500/30 animate-ping" />
-                <div className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse" style={{ animationDelay: '0.5s' }} />
-
                 {/* Button body */}
-                <div
-                    className={cn(
-                        'relative w-20 h-20 rounded-full flex flex-col items-center justify-center',
-                        'bg-gradient-to-br from-red-500 to-red-700',
-                        'shadow-xl glow-danger',
-                        'border-2 border-red-400/50',
-                        'transition-all duration-200',
-                        isPressed && 'from-red-600 to-red-800 scale-95'
-                    )}
-                >
-                    <AlertTriangle className="w-6 h-6 text-white mb-0.5" />
-                    <span className="text-xs font-bold text-white tracking-wider">SOS</span>
+                <div className="flex flex-col items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 mb-0.5" />
+                    <span className="text-xs font-bold tracking-wider uppercase">SOS</span>
                 </div>
 
                 {/* Tooltip */}
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-zinc-800 rounded-lg text-xs text-zinc-50 font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-surface border border-border rounded-lg text-xs text-foreground font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 shadow-xl">
                     Emergency Alert
                 </div>
             </motion.button>

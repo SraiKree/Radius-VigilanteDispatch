@@ -15,13 +15,13 @@ function EmergencyPage() {
     };
 
     return (
-        <div className="w-full h-full relative bg-zinc-950 overflow-hidden">
+        <div className="w-full h-full relative bg-background overflow-hidden">
             {/* Background Map - Dimmed for focus */}
             <div className="absolute inset-0 opacity-40">
-                <div className="w-full h-full">
+                <div className="w-full h-full grayscale">
                     <TacticalMap incidents={incidents} />
                 </div>
-                <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
+                <div className="absolute inset-0 bg-background/80" />
             </div>
 
             {/* Content Container */}
@@ -33,9 +33,9 @@ function EmergencyPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="absolute top-8 left-0 right-0 text-center"
                 >
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-medium text-emerald-400 tracking-wider uppercase">Grid Online • 12 Responders Active</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface border border-border shadow-md mb-4">
+                        <div className="w-2 h-2 rounded-full bg-command" />
+                        <span className="text-xs font-medium text-foreground tracking-wider uppercase">Grid Online • 12 Responders Active</span>
                     </div>
                 </motion.div>
 
@@ -55,20 +55,19 @@ function EmergencyPage() {
                         <SOSButton onTrigger={handleSOS} />
                     </div>
 
-                    {/* Location Status */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
-                        className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex items-center gap-4"
+                        className="w-full bg-surface border border-border rounded-xl p-4 flex items-center gap-4 shadow-lg"
                     >
-                        <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-                            <MapPin className="w-5 h-5 text-indigo-400" />
+                        <div className="w-10 h-10 rounded-full bg-command/10 border border-command/30 flex items-center justify-center shrink-0">
+                            <MapPin className="w-5 h-5 text-command" />
                         </div>
                         <div className="text-left">
-                            <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Current Location</p>
-                            <p className="text-zinc-200 font-mono text-sm">Library Complex, South Wing</p>
-                            <p className="text-xs text-indigo-400/80 mt-0.5">GPS Accuracy: High</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Current Location</p>
+                            <p className="text-foreground font-mono text-sm">Library Complex, South Wing</p>
+                            <p className="text-xs text-command/80 mt-0.5">GPS Accuracy: High</p>
                         </div>
                     </motion.div>
                 </div>

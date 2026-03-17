@@ -27,18 +27,27 @@ L.Icon.Default.mergeOptions({
 });
 
 // Custom CSS-based SOS Marker using Leaflet's divIcon
-const sosIcon = L.divIcon({
+const createSosIcon = (colorHex) => L.divIcon({
     className: 'bg-transparent border-none',
     html: `
         <div class="relative w-8 h-8 flex items-center justify-center">
-            <div class="absolute w-full h-full bg-red-500 rounded-full animate-ping opacity-75"></div>
-            <div class="relative w-4 h-4 bg-red-600 rounded-full border-2 border-zinc-900 shadow-[0_0_10px_rgba(220,38,38,0.8)]"></div>
+            <div class="relative w-4 h-4 rounded-full border-2 border-[#16181D] shadow-md" style="background-color: ${colorHex}"></div>
         </div>
     `,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
     popupAnchor: [0, -16],
 });
+
+const getIncidentStyle = (type) => {
+    switch (type) {
+        case 'Medical SOS': return { colorClass: 'text-beacon', bgClass: 'bg-beacon', markerColor: '#FF2A4D', icon: '🏥' };
+        case 'Safety SOS': return { colorClass: 'text-beacon', bgClass: 'bg-beacon', markerColor: '#FF2A4D', icon: '🛡️' };
+        case 'Fire SOS': return { colorClass: 'text-beacon', bgClass: 'bg-beacon', markerColor: '#FF2A4D', icon: '🔥' };
+        case 'Other SOS': return { colorClass: 'text-beacon', bgClass: 'bg-beacon', markerColor: '#FF2A4D', icon: '⚠️' };
+        default: return { colorClass: 'text-command', bgClass: 'bg-command', markerColor: '#00E5FF', icon: '⚠️' };
+    }
+};
 
 // MLRIT Dundigal Coordinates
 const DEFAULT_CENTER = [17.5945, 78.4403];
@@ -51,7 +60,7 @@ const DEFAULT_ZOOM = 17;
  */
 function TacticalMap({ incidents = [], onDeleteIncident, isAdmin = false }) {
     return (
-        <div className="w-full h-full relative rounded-lg overflow-hidden border border-zinc-800 shadow-2xl">
+        <div className="w-full h-full relative rounded-lg overflow-hidden border border-border shadow-2xl">
             <MapContainer
                 center={DEFAULT_CENTER}
                 zoom={DEFAULT_ZOOM}
@@ -67,42 +76,48 @@ function TacticalMap({ incidents = [], onDeleteIncident, isAdmin = false }) {
                 />
 
                 {/* Render Incidents */}
-                {incidents.map((incident) => (
-                    <div key={incident.id}>
-                        {/* Danger Zone Radius indicator */}
-                        <Circle
-                            center={[incident.lat, incident.lng]}
-                            radius={50}
-                            pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.1, weight: 1 }}
-                        />
+                {incidents.map((incident) => {
+                    const style = getIncidentStyle(incident.type);
 
-                        {/* Custom Marker */}
-                        <Marker
-                            position={[incident.lat, incident.lng]}
-                            icon={sosIcon}
-                        >
-                            <Popup className="tactical-popup">
-                                <div className="bg-zinc-900 text-zinc-50 p-3 rounded-lg border border-zinc-800 shadow-xl w-52 -m-1">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                                        <h3 className="text-xs font-bold uppercase tracking-wider text-red-500">{incident.type}</h3>
+                    return (
+                        <div key={incident.id}>
+                            {/* Danger Zone Radius indicator */}
+                            <Circle
+                                center={[incident.lat, incident.lng]}
+                                radius={50}
+                                pathOptions={{ color: style.markerColor, fillColor: style.markerColor, fillOpacity: 0.1, weight: 1 }}
+                            />
+
+                            {/* Custom Marker */}
+                            <Marker
+                                position={[incident.lat, incident.lng]}
+                                icon={createSosIcon(style.markerColor)}
+                            >
+                                <Popup className="tactical-popup">
+                                    <div className="bg-surface text-foreground p-3 rounded-lg border border-border shadow-xl w-52 -m-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className={`w-2 h-2 rounded-full ${style.bgClass} animate-pulse`}></div>
+                                            <h3 className={`text-xs font-bold uppercase tracking-wider ${style.colorClass}`}>
+                                                {style.icon} {incident.type}
+                                            </h3>
+                                        </div>
+                                        <p className="text-sm border-b border-border pb-2 mb-2 text-foreground">{incident.note || <span className="text-muted-foreground italic">No additional details</span>}</p>
+                                        <p className="text-xs text-muted-foreground text-right mb-2">{timeAgo(incident.created_at)}</p>
+                                        {isAdmin && (
+                                            <button
+                                                onClick={() => onDeleteIncident && onDeleteIncident(incident.id)}
+                                                className="w-full flex items-center justify-center gap-1.5 text-xs text-beacon bg-beacon/10 hover:bg-beacon/20 border border-beacon/30 rounded-md py-1.5 transition-colors"
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                                Mark False Positive
+                                            </button>
+                                        )}
                                     </div>
-                                    <p className="text-sm border-b border-zinc-800 pb-2 mb-2">{incident.note || <span className="text-zinc-500 italic">No additional details</span>}</p>
-                                    <p className="text-xs text-zinc-500 text-right mb-2">{timeAgo(incident.created_at)}</p>
-                                    {isAdmin && (
-                                        <button
-                                            onClick={() => onDeleteIncident && onDeleteIncident(incident.id)}
-                                            className="w-full flex items-center justify-center gap-1.5 text-xs text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-md py-1.5 transition-colors"
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                            Mark False Positive
-                                        </button>
-                                    )}
-                                </div>
-                            </Popup>
-                        </Marker>
-                    </div>
-                ))}
+                                </Popup>
+                            </Marker>
+                        </div>
+                    );
+                })}
             </MapContainer>
         </div>
     );
