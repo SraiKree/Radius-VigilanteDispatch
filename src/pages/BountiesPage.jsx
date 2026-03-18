@@ -176,6 +176,7 @@ function BountiesPage() {
                 goal: editingBounty.goal,
                 raised: editingBounty.raised,
                 "daysLeft": editingBounty.daysLeft,
+                backers: editingBounty.backers,
                 status: editingBounty.status,
                 "moreInfoLink": editingBounty.moreInfoLink,
             })
@@ -481,17 +482,30 @@ function BountiesPage() {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-zinc-300 mb-1">
-                                            Status
+                                            Backers
                                         </label>
-                                        <select
-                                            value={editingBounty.status}
-                                            onChange={(e) => setEditingBounty({ ...editingBounty, status: e.target.value })}
+                                        <input
+                                            type="number"
+                                            value={editingBounty.backers ?? 0}
+                                            onChange={(e) => setEditingBounty({ ...editingBounty, backers: Number(e.target.value) })}
                                             className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-                                        >
-                                            <option value="open">Open</option>
-                                            <option value="fulfilled">Fulfilled</option>
-                                        </select>
+                                            required
+                                            min="0"
+                                        />
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-zinc-300 mb-1">
+                                        Status
+                                    </label>
+                                    <select
+                                        value={editingBounty.status}
+                                        onChange={(e) => setEditingBounty({ ...editingBounty, status: e.target.value })}
+                                        className="w-full h-10 px-3 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                    >
+                                        <option value="open">Open</option>
+                                        <option value="fulfilled">Fulfilled</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-zinc-300 mb-1">

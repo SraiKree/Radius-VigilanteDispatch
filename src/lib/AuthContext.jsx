@@ -3,21 +3,24 @@ import { createContext, useContext, useState } from 'react';
 const AuthContext = createContext(null);
 
 /**
- * AuthProvider - Provides global auth state including admin mode
+ * AuthProvider - Provides global auth state including admin mode and user data
  */
 export function AuthProvider({ children }) {
     const [isAdmin, setIsAdmin] = useState(false);
+    const [user, setUser] = useState(null);
 
-    const login = (adminMode) => {
+    const login = (adminMode, userData = null) => {
         setIsAdmin(adminMode);
+        setUser(userData);
     };
 
     const logout = () => {
         setIsAdmin(false);
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isAdmin, login, logout }}>
+        <AuthContext.Provider value={{ isAdmin, user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

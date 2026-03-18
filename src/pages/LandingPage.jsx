@@ -61,49 +61,94 @@ function LandingPage() {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+        if (isSigningUp) return; // Prevent double-submit
+
         setSignupError('');
         setSignupSuccess('');
         setIsSigningUp(true);
 
-        const table = signupRole === 'admin' ? 'admins' : 'users';
-        const payload = {
-            full_name: signupForm.fullName,
-            email: signupForm.email,
-            password: signupForm.password,
-            department: signupForm.department,
-        };
+        try {
+            const table = signupRole === 'admin' ? 'admins' : 'users';
+            const payload = {
+                full_name: signupForm.fullName.trim(),
+                email: signupForm.email.trim().toLowerCase(),
+                password: signupForm.password,
+                department: signupForm.department.trim(),
+            };
 
-        const { error } = await supabase.from(table).insert([payload]);
+            const { data, error } = await supabase
+                .from(table)
+                .insert([payload])
+                .select()
+                .maybeSingle();
 
-        if (error) {
-            setIsSigningUp(false);
-            if (error.code === '23505') {
-                setSignupError('Already authorized');
-            } else {
-                setSignupError(error.message || 'Something went wrong');
+            if (error) {
+                setIsSigningUp(false);
+                if (error.code === '23505') {
+                    setSignupError('Already authorized — this email is registered.');
+                } else {
+                    setSignupError(error.message || 'Something went wrong');
+                }
+                return;
             }
-            return;
-        }
 
-        setSignupSuccess('Clearance granted! Establishing secure connection...');
-        setSignupForm({ fullName: '', email: '', password: '', department: '' });
+            setSignupSuccess('Clearance granted! Establishing secure connection...');
+            setSignupForm({ fullName: '', email: '', password: '', department: '' });
 
-        // Automatically login and navigate after signup
-        setTimeout(() => {
+            // Automatically login and navigate after signup
+            setTimeout(() => {
+                setIsSigningUp(false);
+                login(signupRole === 'admin', data);
+                navigate('/emergency');
+            }, 2000);
+        } catch (err) {
+            setSignupError('Network error — check your connection and try again.');
             setIsSigningUp(false);
-            login(signupRole === 'admin');
-            navigate('/emergency');
-        }, 2000);
+        }
     };
 
-    const handleLogin = (e) => {
+    const [loginError, setLoginError] = useState('');
+
+    const handleLogin = async (e) => {
         e.preventDefault();
+        if (isLoggingIn) return; // Prevent double-submit
+
+        setLoginError('');
         setIsLoggingIn(true);
-        // Simulate network/security check for login
-        setTimeout(() => {
-            login(selectedRole === 'hq');
+
+        try {
+            const table = selectedRole === 'hq' ? 'admins' : 'users';
+
+            const { data, error } = await supabase
+                .from(table)
+                .select('*')
+                .eq('email', email.trim().toLowerCase())
+                .eq('password', password)
+                .maybeSingle();
+
+            if (error) {
+                setLoginError('System error — please try again.');
+                setIsLoggingIn(false);
+                return;
+            }
+
+            if (!data) {
+                setLoginError(
+                    selectedRole === 'hq'
+                        ? 'HQ credentials not recognized. Verify your email and access key.'
+                        : 'Agent credentials not recognized. Verify your email and access key.'
+                );
+                setIsLoggingIn(false);
+                return;
+            }
+
+            // Credentials valid — login
+            login(selectedRole === 'hq', data);
             navigate('/emergency');
-        }, 1500);
+        } catch (err) {
+            setLoginError('Network error — check your connection and try again.');
+            setIsLoggingIn(false);
+        }
     };
 
     if (isInitialLoading) {
@@ -357,8 +402,10 @@ function LandingPage() {
                                             className="input w-full h-12 bg-zinc-800/50 border-zinc-700 focus:border-red-500/50 focus:ring-red-500/20 rounded-xl px-4 text-zinc-50 transition-all"
                                             id="userEmail"
                                             value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
+                                            onChange={(e) => { setEmail(e.target.value); setLoginError(''); }}
                                             required
+                                            maxLength={120}
+                                            autoComplete="email"
                                         />
                                     </div>
                                     <div>
@@ -370,8 +417,10 @@ function LandingPage() {
                                                 placeholder="············"
                                                 className="input w-full h-12 bg-zinc-800/50 border-zinc-700 focus:border-red-500/50 focus:ring-red-500/20 rounded-xl px-4 text-zinc-50 transition-all pr-12"
                                                 value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
+                                                onChange={(e) => { setPassword(e.target.value); setLoginError(''); }}
                                                 required
+                                                maxLength={128}
+                                                autoComplete="current-password"
                                             />
                                             <button
                                                 type="button"
@@ -391,6 +440,19 @@ function LandingPage() {
                                         </div>
                                         <a href="#" className="text-red-500 hover:text-red-400 text-sm transition-colors">Emergency Reset</a>
                                     </div>
+
+                                    {/* Login error banner */}
+                                    {loginError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -4 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 font-mono"
+                                        >
+                                            <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+                                            <span>{loginError}</span>
+                                        </motion.div>
+                                    )}
+
                                     <button type="submit" disabled={isLoggingIn} className="btn btn-lg bg-red-600 hover:bg-red-700 text-white border-none w-full h-14 rounded-xl font-bold shadow-lg shadow-red-900/20 transition-all flex items-center justify-center gap-2">
                                         {isLoggingIn ? (
                                             <>
