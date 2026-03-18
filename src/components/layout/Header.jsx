@@ -5,7 +5,8 @@ import { cn } from '../../lib/cn';
 import { StatusDot } from '../common/Badge';
 
 /**
- * Header - Glassmorphism top bar with system status
+ * Header - Hardware-tactical top bar with system status
+ * Solid bg-surface, no glassmorphism, semantic colors
  */
 function Header({ className }) {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -41,13 +42,13 @@ function Header({ className }) {
     return (
         <header
             className={cn(
-                'h-14 glass border-b border-zinc-800/50 flex items-center justify-between px-6',
+                'h-14 bg-surface border-b border-border flex items-center justify-between px-6',
                 className
             )}
         >
             {/* Left section - Page title area */}
             <div className="flex items-center gap-4">
-                <h1 className="text-sm font-semibold text-zinc-50 uppercase tracking-wider">
+                <h1 className="text-sm font-semibold text-foreground uppercase tracking-wider">
                     Tactical Command
                 </h1>
             </div>
@@ -63,24 +64,24 @@ function Header({ className }) {
                     <StatusDot status={isOnline ? 'online' : 'offline'} pulse={isOnline} />
                     <span className={cn(
                         'text-xs font-semibold uppercase tracking-wider',
-                        isOnline ? 'text-emerald-400' : 'text-zinc-500'
+                        isOnline ? 'text-command' : 'text-muted-foreground'
                     )}>
                         {isOnline ? 'Grid Online' : 'Offline'}
                     </span>
                     {isOnline ? (
-                        <Wifi className="w-4 h-4 text-emerald-400" />
+                        <Wifi className="w-4 h-4 text-command" />
                     ) : (
-                        <WifiOff className="w-4 h-4 text-zinc-500" />
+                        <WifiOff className="w-4 h-4 text-muted-foreground" />
                     )}
                 </motion.div>
 
                 {/* Separator */}
-                <div className="w-px h-6 bg-zinc-700" />
+                <div className="w-px h-6 bg-border" />
 
                 {/* Date & Time */}
-                <div className="flex items-center gap-3 text-zinc-400">
+                <div className="flex items-center gap-3 text-muted-foreground">
                     <span className="text-xs font-medium">{formatDate(currentTime)}</span>
-                    <span className="font-mono text-sm text-zinc-50 tabular-nums">
+                    <span className="font-mono text-sm text-foreground tabular-nums">
                         {formatTime(currentTime)}
                     </span>
                 </div>

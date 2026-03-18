@@ -9,7 +9,7 @@ import { Header } from './Header';
  */
 function AppShell() {
     return (
-        <div className="h-screen w-screen flex overflow-hidden bg-zinc-950">
+        <div className="h-screen w-screen flex overflow-hidden bg-background">
             {/* Sidebar */}
             <Sidebar />
 
