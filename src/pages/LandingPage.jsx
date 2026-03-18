@@ -192,7 +192,7 @@ function LandingPage() {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-50 relative overflow-hidden">
             {/* Background effects */}
-            <div className="absolute inset-0 z-0">
+            <div className="fixed inset-0 z-0 bg-black">
                 <GridDistortion
                     imageSrc={landingBg}
                     grid={40}
@@ -245,7 +245,7 @@ function LandingPage() {
                             <br />
                             <Shuffle
                                 text="REIMAGINED"
-                                className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 tracking-tighter font-sans"
+                                className="text-red-500 tracking-tighter font-sans"
                                 style={{ letterSpacing: '-0.06em' }}
                                 shuffleDirection="up"
                                 duration={0.35}

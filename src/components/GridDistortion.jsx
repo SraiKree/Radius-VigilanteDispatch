@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 
 const vertexShader = `
@@ -256,4 +256,4 @@ const GridDistortion = ({ grid = 15, mouse = 0.1, strength = 0.15, relaxation = 
   );
 };
 
-export default GridDistortion;
+export default React.memo(GridDistortion);
