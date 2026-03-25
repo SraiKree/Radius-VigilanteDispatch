@@ -1,7 +1,48 @@
 import { motion } from 'framer-motion';
-import { MapPin, Shield, Activity, Radius } from 'lucide-react';
+import { MapPin, Shield, Activity, Radius, MapPinOff, Loader2 } from 'lucide-react';
 import { TacticalMap, LiveFeed, SOSButton } from '../components/dashboard';
 import { useIncidents } from '../hooks/useIncidents';
+import { useLocation } from '../hooks/useLocation';
+
+/**
+ * LocationCard — shows real GPS-derived campus zone
+ */
+function LocationCard() {
+    const { zone, accuracy, status } = useLocation();
+
+    const isActive = status === 'active';
+    const isDenied = status === 'denied';
+    const isRequesting = status === 'requesting';
+
+    const iconColor = isActive ? 'text-command' : isDenied ? 'text-beacon' : 'text-muted-foreground';
+    const ringColor = isActive ? 'bg-command/10 border-command/30' : isDenied ? 'bg-beacon/10 border-beacon/30' : 'bg-surface border-border';
+    const Icon = isDenied ? MapPinOff : isRequesting ? Loader2 : MapPin;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="w-full bg-surface border border-border rounded-xl p-4 flex items-center gap-4 shadow-lg"
+        >
+            <div className={`w-10 h-10 rounded-full ${ringColor} border flex items-center justify-center shrink-0`}>
+                <Icon className={`w-5 h-5 ${iconColor} ${isRequesting ? 'animate-spin' : ''}`} />
+            </div>
+            <div className="text-left min-w-0">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Current Location</p>
+                <p className="text-foreground font-mono text-sm truncate">
+                    {isRequesting ? 'Acquiring signal...' : zone}
+                </p>
+                {isActive && accuracy && (
+                    <p className="text-xs text-command/80 mt-0.5">GPS Accuracy: {accuracy}</p>
+                )}
+                {isDenied && (
+                    <p className="text-xs text-beacon/80 mt-0.5">Enable location access in browser settings</p>
+                )}
+            </div>
+        </motion.div>
+    );
+}
 
 /**
  * EmergencyPage - Dedicated emergency response view
@@ -55,21 +96,7 @@ function EmergencyPage() {
                         <SOSButton onTrigger={handleSOS} />
                     </div>
 
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="w-full bg-surface border border-border rounded-xl p-4 flex items-center gap-4 shadow-lg"
-                    >
-                        <div className="w-10 h-10 rounded-full bg-command/10 border border-command/30 flex items-center justify-center shrink-0">
-                            <MapPin className="w-5 h-5 text-command" />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Current Location</p>
-                            <p className="text-foreground font-mono text-sm">Library Complex, South Wing</p>
-                            <p className="text-xs text-command/80 mt-0.5">GPS Accuracy: High</p>
-                        </div>
-                    </motion.div>
+                    <LocationCard />
                 </div>
 
                 {/* Quick stats footer */}
